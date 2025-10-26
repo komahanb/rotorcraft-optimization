@@ -1,0 +1,66 @@
+digraph G {
+  rankdir=LR;
+  node [shape=box, fontname="Courier"];
+
+  // Nodes
+  P1 [label="P1: blade0"];
+  P2 [label="P2: blade90"];
+  P3 [label="P3: blade180"];
+  P4 [label="P4: blade270"];
+  P5 [label="P5: shaft"];
+  P6 [label="P6: lsp"];
+  P7 [label="P7: usp"];
+  P8 [label="P8: lpl30"];
+  P9 [label="P9: lpl120"];
+  P10 [label="P10: lpl210"];
+  P11 [label="P11: lpl300"];
+  P12 [label="P12: upl30"];
+  P13 [label="P13: upl120"];
+  P14 [label="P14: upl210"];
+  P15 [label="P15: upl300"];
+  P16 [label="P16: sphere"];
+  P17 [label="P17: prod90"];
+  P18 [label="P18: prod180"];
+  P19 [label="P19: prod270"];
+  P20 [label="P20: lph"];
+  P21 [label="P21: uph"];
+  P22 [label="P22: bsp"];
+
+  // Blade connections
+  P1 -> P12 [label="rigid link"];
+  P2 -> P13 [label="rigid link"];
+  P3 -> P14 [label="rigid link"];
+  P4 -> P15 [label="rigid link"];
+
+  // Horns to shaft
+  P12 -> P5 [label="revolute"];
+  P13 -> P5 [label="revolute"];
+  P14 -> P5 [label="revolute"];
+  P15 -> P5 [label="revolute"];
+
+  // Pitch links to usp and horns
+  P8 -> P7 [label="spherical"];
+  P9 -> P7 [label="spherical"];
+  P10 -> P7 [label="spherical"];
+  P11 -> P7 [label="spherical"];
+
+  P8 -> P12 [label="spherical"];
+  P9 -> P13 [label="spherical"];
+  P10 -> P14 [label="spherical"];
+  P11 -> P15 [label="spherical"];
+
+  // Swashplate core
+  P6 -> P7 [label="revolute"];
+  P6 -> P16 [label="spherical"];
+  P16 -> P5 [label="cylindrical"];
+
+  // Push rods
+  P17 -> P6 [label="spherical"];
+  P18 -> P6 [label="spherical"];
+  P19 -> P6 [label="spherical"];
+
+  // Push horn to base
+  P20 -> P22 [label="revolute"];
+  P20 -> P21 [label="revolute"];
+  P21 -> P6 [label="spherical"];
+}
