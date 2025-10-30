@@ -1,4 +1,5 @@
 import argparse
+import os
 from tacs import TACS, elements, constitutive
 from enum import Enum
 import numpy as np
@@ -2323,6 +2324,9 @@ class TACSSolver:
         integrator.setAbsTol(solver_abs_tol)
         integrator.setMaxNewtonIters(max_newton_iters)
         integrator.setPrintLevel(print_level)
+        if output_freq < 0:
+            raise ValueError("output_frequency must be non-negative")
+        os.makedirs(output_dir, exist_ok=True)
         integrator.setOutputFrequency(output_freq)
         integrator.setOutputPrefix(output_dir)
         #integrator.setJacAssemblyFreq(3)
@@ -2588,7 +2592,7 @@ class TACSDynamicsProblem(TACSProblem):
         parser.add_argument('--solver_rel_tol'        , type=float  , default=1.0e-7     , help='The relative reduction in residual for stopping nonlinear solution')
         parser.add_argument('--solver_abs_tol'        , type=float  , default=1.0e-4     , help='The absolute reduction in residual for stopping nonlinear solution')
         parser.add_argument('--max_newton_iters'      , type=int    , default=30         , help='Maximum iterations for newton_solve')
-        parser.add_argument('--output_frequency'      , type=int    , default=0          , help='Fraction of number of time steps to write the f5 output file')
+        parser.add_argument('--output_frequency'      , type=int    , default=1          , help='Fraction of number of time steps to write the f5 output file (0 disables output)')
         parser.add_argument('--output_dir'            , type=str    , default='results'  , help='Directory for tecplot output files')
         parser.add_argument('--states_dir'            , type=str    , default='states'   , help='Directory for TACS state vectors')
         parser.add_argument('--print_level'           , type=int    , default=1          , help='Amount of print. 0 : off, 1 = report after each time step, 2= report after each Newton iteration')
