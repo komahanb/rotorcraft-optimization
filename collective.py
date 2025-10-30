@@ -2,6 +2,14 @@ import sys
 sys.path.append('../')
 
 import numpy as np
+
+# Backward compatibility for deprecated NumPy scalar aliases used by TACS
+np_attrs = np.__dict__
+for alias, target in (("int", int), ("float", float),
+                      ("complex", complex), ("bool", bool)):
+    if alias not in np_attrs:
+        setattr(np, alias, target)
+
 np.set_printoptions(precision=16)
 
 from mpi4py import MPI
@@ -209,7 +217,7 @@ class TACSRotorAssemblyFourBladedCollective(TACSDynamicsProblem):
 if __name__ == "__main__":
     # Create the rotor assembly problem
     problem = TACSRotorAssemblyFourBladedCollective(MPI.COMM_WORLD,
-                                                    TACSBodyType.RIGID,
+                                                    TACSBodyType.SHELL,
                                                     False)
     # Create design variable values
     nvars = 48

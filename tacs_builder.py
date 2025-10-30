@@ -378,7 +378,9 @@ class TACSBuilder:
 
         # Get the distributed list of node numbers
         for body in self.body_list:
-            body.dist_nodes = creator.getAssemblerNodeNums(tacs, body.nodes)
+            node_array = np.array(body.nodes, dtype=np.intc)
+            dist_nodes = creator.getTacsNodeNums(tacs, node_array)
+            body.dist_nodes = np.array(dist_nodes, dtype=np.intc)
             # convert to a local ordering
             rnge = tacs.getOwnerRange()
             body.dist_nodes -= np.min(rnge[comm.Get_rank()])
@@ -704,7 +706,7 @@ class TACSBuilder:
             eids.append(self.getElementID())
 
             # Offset the pointer
-            self.setNodePointer(shell_elem.getNumNodes())
+            self.setNodePointer(shell_elem.numNodes())
 
         # Return the flexible body object
         scomp = TACSBody(id, TACSBodyType.FLEXIBLE, elems, eids,
@@ -814,7 +816,7 @@ class TACSBuilder:
             eids.append(self.getElementID())
 
             # Offset the pointer
-            self.setNodePointer(shell_elem.getNumNodes())
+            self.setNodePointer(shell_elem.numNodes())
 
         # Return the flexible body object
         scomp = TACSBody(id, TACSBodyType.FLEXIBLE, elems, eids,
@@ -989,7 +991,7 @@ class TACSBuilder:
             eids.append(self.getElementID())
 
             # Create pointer into start index of next element
-            ptr.append(self.getNodePointer(beam_element.getNumNodes()))
+        ptr.append(self.getNodePointer(beam_element.numNodes()))
 
 
         # Return the flexible body object
@@ -1055,7 +1057,7 @@ class TACSBuilder:
         conn.append(node)
 
         # Create pointer into starting of next body
-        ptr.append(self.getNodePointer(elem.getNumNodes()))
+        ptr.append(self.getNodePointer(elem.numNodes()))
 
         # return the body object
         comp = TACSBody(id, TACSBodyType.RIGID, elems, eids,
@@ -1139,7 +1141,7 @@ class TACSBuilder:
             conn.append(node)
 
             # Create pointer into starting of next body
-            ptr.append(self.getNodePointer(link.getNumNodes()))
+            ptr.append(self.getNodePointer(link.numNodes()))
 
         # return the body object
         name =  "rigid link between %s and %s" % (rigidCompA.name, bodyB.name)
@@ -1213,7 +1215,7 @@ class TACSBuilder:
             conn.append(conid) # flex attachment node
 
             # Create pointer into starting of next component
-            ptr.append(self.getNodePointer(flink.getNumNodes()))
+            ptr.append(self.getNodePointer(flink.numNodes()))
 
         # Return the body object
         name = "flexible link between %s and %s" % (rigidBody.name,
@@ -1225,9 +1227,8 @@ class TACSBuilder:
 
         return comp
 
-    def addRevoluteConstraint(self, ref_point, fixed_ref_point,
-                              revaxis, inertial_rev_axis,
-                              bodyA, bodyB):
+    def addRevoluteConstraint(self, ref_point, revaxis, bodyA,
+                              bodyB=None):
         '''
         Add a revolute contraint body in between two rigid
         bodies. This can not be generated between rigid and
@@ -1246,26 +1247,21 @@ class TACSBuilder:
         id = self.getBodyID()
 
         bA = None
-        if bodyA.btype == TACSBodyType.RIGID:
+        if bodyA is not None and bodyA.btype == TACSBodyType.RIGID:
             bA = bodyA.elems[0]
 
+        if bA is None:
+            raise ValueError("Revolute constraints require a rigid body for bodyA")
+
         bB = None
-        if bodyB is not None and bodyB.btype == TACSBodyType.RIGID:
+        if bodyB is not None:
+            if bodyB.btype != TACSBodyType.RIGID:
+                raise ValueError("Revolute constraints require rigid bodies")
             bB = bodyB.elems[0]
 
-        if bA or bB is None:
-            revcon = self.ehelper.createRevoluteConstraint(ref_point,
-                                                           revaxis,
-                                                           fixed_ref_point,
-                                                           inertial_rev_axis,
-                                                           None, None)
-        else:
-
-            revcon = self.ehelper.createRevoluteConstraint(ref_point,
-                                                           revaxis,
-                                                           fixed_ref_point,
-                                                           inertial_rev_axis,
-                                                           bA, bB)
+        revcon = self.ehelper.createRevoluteConstraint(ref_point,
+                                                       revaxis,
+                                                       bA, bB)
 
         ## if bodyA.btype != TACSBodyType.RIGID:
 
@@ -1342,7 +1338,7 @@ class TACSBuilder:
         conn.append(node) # self node
 
         # Create pointer into starting of next body
-        ptr.append(self.getNodePointer(revcon.getNumNodes()))
+        ptr.append(self.getNodePointer(revcon.numNodes()))
 
         # Return the body object
         comp = TACSBody(id, TACSBodyType.CONSTRAINT, elems,
@@ -1426,7 +1422,7 @@ class TACSBuilder:
         conn.append(node)
 
         # Create pointer into starting of next body
-        ptr.append(self.getNodePointer(revcon.getNumNodes()))
+        ptr.append(self.getNodePointer(revcon.numNodes()))
 
         # Return the body object
         comp = TACSBody(id, TACSBodyType.CONSTRAINT, elems,
@@ -1503,7 +1499,7 @@ class TACSBuilder:
         conn.append(node)
 
         # Create pointer into starting of next body
-        ptr.append(self.getNodePointer(revcon.getNumNodes()))
+        ptr.append(self.getNodePointer(revcon.numNodes()))
 
         # Return the body object
         comp = TACSBody(id, TACSBodyType.CONSTRAINT, elems,
@@ -1580,7 +1576,7 @@ class TACSBuilder:
         conn.append(node)
 
         # Create pointer into starting of next body
-        ptr.append(self.getNodePointer(revcon.getNumNodes()))
+        ptr.append(self.getNodePointer(revcon.numNodes()))
 
         # Return the body object
         comp = TACSBody(id, TACSBodyType.CONSTRAINT, elems,
@@ -1639,7 +1635,7 @@ class TACSBuilder:
         conn.append(node)
 
         # Create pointer into starting of next body
-        ptr.append(self.getNodePointer(fcon.getNumNodes()))
+        ptr.append(self.getNodePointer(fcon.numNodes()))
 
         # Return the body object
         comp = TACSBody(id, TACSBodyType.CONSTRAINT, elems,
@@ -1716,7 +1712,7 @@ class TACSBuilder:
         conn.append(node)
 
         # Create pointer into starting of next body
-        ptr.append(self.getNodePointer(spcon.getNumNodes()))
+        ptr.append(self.getNodePointer(spcon.numNodes()))
 
         # Return the body object
         comp = TACSBody(id, TACSBodyType.CONSTRAINT, elems,
@@ -1778,7 +1774,7 @@ class TACSBuilder:
             bcs.append(bc)
 
             # Create pointer into starting of next body
-            ptr.append(self.getNodePointer(driver.getNumNodes()))
+            ptr.append(self.getNodePointer(driver.numNodes()))
 
         # Return the body object
         name =  "revolute driver for %s" % (drivenComp.name)
@@ -1844,7 +1840,7 @@ class TACSBuilder:
             bcs.append(bc)
 
             # Create pointer into starting of next body
-            ptr.append(self.getNodePointer(mdriver.getNumNodes()))
+            ptr.append(self.getNodePointer(mdriver.numNodes()))
 
         # Return the body object
         name =  "motion driver for %s" % (drivenComp.name)
@@ -2184,10 +2180,12 @@ class ElementHelper:
         constraint = elements.SphericalConstraint(orig, bodyA, bodyB)
         return constraint
 
-    def createRevoluteConstraint(self, loc, revaxis, fixed_ref_point, inertial_rev_axis, bodyA, bodyB):
+    def createRevoluteConstraint(self, loc, revaxis, bodyA, bodyB=None):
         orig = elements.GibbsVector(loc[0], loc[1], loc[2])
         axis = elements.GibbsVector(revaxis[0], revaxis[1], revaxis[2])
-        return elements.RevoluteConstraint(orig, axis, fixed_ref_point, inertial_rev_axis, bodyA, bodyB)
+        if bodyB is None:
+            return elements.RevoluteConstraint(orig, axis, bodyA)
+        return elements.RevoluteConstraint(orig, axis, bodyA, bodyB)
 
     def createCylindricalConstraint(self, loc, revaxis, bodyA, bodyB=None):
         orig = elements.GibbsVector(loc[0], loc[1], loc[2])
@@ -2621,7 +2619,7 @@ class TACSDynamicsProblem(TACSProblem):
             raise
 
         # Everything to do for TACS Creation
-        self.tacs = self.builder.getTACS(ordering, TACS.DIRECT_SCHUR)
+        self.tacs = self.builder.getTACS(ordering, TACS.PY_DIRECT_SCHUR)
 
         # Sanity check if the dynamics correct (not fully tested)
         #print "number of dofs:", self.builder.ndof
