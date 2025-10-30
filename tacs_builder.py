@@ -2628,38 +2628,38 @@ class TACSDynamicsProblem(TACSProblem):
         # Things for configuring time marching
         self.integrator = TACSSolver.createSolver(self.tacs, self.args)
 
-        ## # Control F5 output
-        ## if self.builder.rigid_viz == 1:
-        ##     flag = (TACS.ToFH5.PY_TACS_OUTPUT_NODES|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_DISPLACEMENTS)
-        ##     rigidf5 = TACS.ToFH5(self.tacs, TACS.PY_RIGID, flag)
-        ##     self.integrator.setRigidOutput(rigidf5)
+        # Control F5 output
+        if self.builder.rigid_viz == 1:
+            flag = (TACS.ToFH5.NODES|
+                    TACS.ToFH5.DISPLACEMENTS)
+            rigidf5 = TACS.ToFH5(self.tacs, TACS.PY_RIGID, flag)
+            self.integrator.setRigidOutput(rigidf5)
 
-        ## if self.builder.shell_viz == 1:
-        ##     flag = (TACS.ToFH5.PY_TACS_OUTPUT_NODES|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_DISPLACEMENTS|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_STRAINS|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_STRESSES|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_EXTRAS)
-        ##     shellf5 = TACS.ToFH5(self.tacs, TACS.PY_SHELL, flag)
-        ##     self.integrator.setShellOutput(shellf5)
+        if self.builder.shell_viz == 1:
+            flag = (TACS.ToFH5.NODES|
+                    TACS.ToFH5.DISPLACEMENTS|
+                    TACS.ToFH5.STRAINS|
+                    TACS.ToFH5.STRESSES|
+                    TACS.ToFH5.EXTRAS)
+            shellf5 = TACS.ToFH5(self.tacs, TACS.PY_SHELL, flag)
+            self.integrator.setShellOutput(shellf5)
 
-        ## if self.builder.beam_viz == 1:
-        ##     flag = (TACS.ToFH5.PY_TACS_OUTPUT_NODES|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_DISPLACEMENTS|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_STRAINS|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_STRESSES|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_EXTRAS)
-        ##     beamf5 = TACS.ToFH5(self.tacs, TACS.PY_TIMOSHENKO_BEAM, flag)
-        ##     self.integrator.setBeamOutput(beamf5)
+        if self.builder.beam_viz == 1:
+            flag = (TACS.ToFH5.NODES|
+                    TACS.ToFH5.DISPLACEMENTS|
+                    TACS.ToFH5.STRAINS|
+                    TACS.ToFH5.STRESSES|
+                    TACS.ToFH5.EXTRAS)
+            beamf5 = TACS.ToFH5(self.tacs, TACS.PY_TIMOSHENKO_BEAM, flag)
+            self.integrator.setBeamOutput(beamf5)
 
-        ## if self.builder.solid_viz == 1:
-        ##     flag = (TACS.ToFH5.PY_TACS_OUTPUT_NODES|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_DISPLACEMENTS|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_STRESSES|
-        ##             TACS.ToFH5.PY_TACS_OUTPUT_EXTRAS)
-        ##     solidf5 = TACS.ToFH5(self.tacs, TACS.PY_SOLID, flag)
-        ##     self.integrator.setSolidOutput(solidf5)
+        if self.builder.solid_viz == 1:
+            flag = (TACS.ToFH5.NODES|
+                    TACS.ToFH5.DISPLACEMENTS|
+                    TACS.ToFH5.STRESSES|
+                    TACS.ToFH5.EXTRAS)
+            solidf5 = TACS.ToFH5(self.tacs, TACS.PY_SOLID, flag)
+            self.integrator.setSolidOutput(solidf5)
 
         # store the refernce to body list after initializations are complete
         self.tacs_body_list  = self.builder.body_list
